@@ -1,0 +1,70 @@
+#ROOT_SYMBOL Root;
+/*
+Выделение текстовых временных цепочек разного уровня гранулярности.
+3 основных типа:
+"exact_date" - точная дата ('13 июля 2009 года', '13 июля')
+"period_date" - дата с указанием того примерного срока происхождения события ("в четвертом квартале 2008 года", 
+"три года", "первые шесть месяцев 2009 года")
+"interval_date" - интервал формы "с ... по ...."
+
+*/
+Root -> ExactDate {TEMPORAL.exact_date <no-norm>};
+Root -> PeriodDate {TEMPORAL.period_date <no-norm>};
+Root -> IntervalDate {TEMPORAL.interval_date <no-norm>};
+
+ExactDate -> ExactDateWithMonthAndYear;
+ExactDate -> ExactDateWithMonth;
+ExactDate -> ExactDateWithDayOfMonth;
+
+Digit->AnyWord<rx="[0-9]+(-ом|-ых|-го)?">;
+
+// '13 июля 2009 года'
+// '30 июня 2009 года'
+// NOTE: тут и далее используется "Word<rx="год.*">", т.к. с помощью kwset 
+// выделили ключевые слова, потеряв возможность поиска по лемме
+ExactDateWithMonthAndYear->('в'|'до')? Digit Word<kwtype="month"> Digit Word<rx="год.*">;
+// четверг 9 июля
+// '13 июля'
+// '30 июня'
+// в пятницу, 10 июля
+ExactDateWithMonth->('в'|'до')? word<kwtype="day_of_week">? Comma? Digit word<kwtype="month">;
+// в пятницу
+ExactDateWithDayOfMonth->('в'|'до')? word<kwtype="day_of_week">;
+
+PeriodDate -> PeriodDateWithMonth;
+PeriodDate -> PeriodDateWithTimeUnit;
+PeriodDate -> PeriodDateWithYear;
+
+// в конце июня
+// начале июля
+// начале июля 2009 года
+// в конце мая 2009 года
+// в середине мая текущего года
+// в текущем году
+// в ноябре прошлого года
+// в ноябре прошлого года
+// в конце мая 2009 года
+// январе-июне 2009 года
+// с сентября 2008 года
+PeriodDateWithMonth -> ('в'|'до'|'к'|'с')? ('конец'|'начало'|'середина'|'последний')? Word<kwtype="month">? Hyphen? Word<kwtype="month">  ('текущий'|'прошлый')? Digit? Word<rx="год.*">? ;
+// в первом квартале 2009
+// первого полугодия,  
+// первую неделю июля
+// в первом полугодии 2009 года
+// в первом полугодии текущего года
+// первые пять месяцев 2009 года
+PeriodDateWithTimeUnit -> ('в'|'до'|'за'|'к')? ('первый'|'последний')? Adj<gram-ex="anum"> word<kwtype="time_unit"> Word<kwtype="month">? ('текущий'|'прошлый')?  Digit? Word<rx="год.*">?;
+// годом ранее
+PeriodDateWithTimeUnit -> ('в'|'до')? word<kwtype="time_unit"> ('ранее')?;
+// на протяжении двух лет
+// на этой неделе
+PeriodDateWithTimeUnit -> ('в'|'до'|'на')?  ('протяжение'|'этот') Adj<gram-ex="anum">? word<kwtype="time_unit">;
+// к 2015 году
+// 2009-2011 годы
+PeriodDateWithYear ->('в'|'до'|'на'|'к'|'после'|'с')? ('конец'|'начало'|'середина')?  ('текущий'|'прошлый')? Digit? Hyphen? Digit? Word<rx="год.*">;
+
+// с 1998 по 2005 год
+// с 1 по 8 июля
+// с сентября 2008 года по январь 2009-го
+IntervalDate -> 'с' Word<kwtype="month">? Digit 'по' Word<kwtype="month">? Digit Word<kwtype="month">? Digit? Word<rx="год.*">?;
+

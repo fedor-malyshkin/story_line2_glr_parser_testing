@@ -1,0 +1,11 @@
+[
+{
+"name":"TEMPORAL",
+"fields":
+	[
+	{"name":"exact_date", "type":"STRING"},
+	{"name":"period_date", "type":"STRING"},
+	{"name":"interval_date", "type":"STRING"}
+	]
+}
+]

@@ -1,0 +1,9 @@
+{
+// debug is enabled
+"debug":true,
+"sentence_data":"ru-opennlp-model-sent.bin",
+"morph_zip_db":"dict.story_line2.zip",
+"dictionary_file":"dictionary.dict",
+"articles":["absolute_dates"],
+"fact_file":"facts.fact"
+}

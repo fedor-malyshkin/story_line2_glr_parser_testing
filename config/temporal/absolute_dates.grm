@@ -1,0 +1,108 @@
+#ROOT_SYMBOL Root;
+/*
+Выделение текстовых временных цепочек разного уровня гранулярности.
+3 основных типа:
+"exact_date" - точная дата ('13 июля 2009 года', '13 июля')
+"period_date" - дата с указанием того примерного срока происхождения события ("в четвертом квартале 2008 года", 
+"три года", "первые шесть месяцев 2009 года")
+"interval_date" - интервал формы "с ... по ...."
+
+*/
+Root -> ExactDate {TEMPORAL.exact_date <no-norm>};
+Root -> PeriodDate {TEMPORAL.period_date <no-norm>};
+Root -> IntervalDate {TEMPORAL.interval_date <no-norm>};
+
+ExactDate -> ExactDateWithMonthAndYear;
+ExactDate -> ExactDateWithMonth;
+ExactDate -> ExactDateWithDayOfMonth;
+
+Digit->AnyWord<rx="[0-9]+(-ом|-ых|-го)?">;
+
+// '13 июля 2009 года'
+// '30 июня 2009 года'
+// NOTE: тут и далее используется "Noun<rx="год.*">", т.к. с помощью kwset 
+// выделили ключевые слова, потеряв возможность поиска по лемме
+ExactDateWithMonthAndYear->Digit Noun<kwtype="month"> Digit Noun<rx="год.*">;
+// четверг 9 июля
+// '13 июля'
+// '30 июня'
+// пятницу, 10 июля
+ExactDateWithMonth->Digit Noun<kwtype="month">;
+ExactDateWithMonth->word<kwtype="day_of_week"> Comma? Digit Noun<kwtype="month">;
+// пятницу
+ExactDateWithDayOfMonth->word<kwtype="day_of_week">;
+
+PeriodDate -> PeriodDateWithMonth;
+PeriodDate -> PeriodDateWithTimeUnit;
+PeriodDate -> PeriodDateWithYear;
+
+// начало текущего 2015 года
+YearUnit -> Noun<kwtype="time_unit_duration_pos">? Adj<kwtype="time_unit_type">? Digit? Noun<rx="год.*">;
+// начало текущего месяца
+TimeUnit -> Noun<kwtype="time_unit_duration_pos">? Adj<kwtype="time_unit_type">? Noun<kwtype="time_unit">;
+// начало первого полугодия
+TimeUnit -> Noun<kwtype="time_unit_duration_pos">?  Adj<gram-ex="anum">  Noun<kwtype="time_unit">;
+// первая неделя июля
+TimeUnit -> Adj<gram-ex="anum">  Noun<kwtype="time_unit"> Noun<kwtype="month">;
+
+// конце июня
+// начале июля
+// начале июля 2009 года
+// конце мая 2009 года
+// середине мая текущего года
+// конце мая 2009 года
+PeriodDateWithMonth -> Noun<kwtype="time_unit_duration_pos"> Noun<kwtype="month"> YearUnit? ;
+
+// ноябре прошлого года
+// ноябре прошлого года
+// январе-июне 2009 года
+// сентября 2008 года
+PeriodDateWithMonth -> Adj<kwtype="time_unit_type">? Noun<kwtype="month">? Hyphen? Noun<kwtype="month">  Adj<kwtype="time_unit_type">? YearUnit? ;
+
+// первом квартале 2009
+// первого полугодия,  
+// первую неделю июля
+// первом полугодии 2009 года
+// первом полугодии текущего года
+PeriodDateWithTimeUnit -> TimeUnit  YearUnit?;
+// первом полугодии
+PeriodDateWithTimeUnit -> Adj<gram-ex="anum"> Noun<kwtype="time_unit">;
+// первые пять месяцев 2009 года
+PeriodDateWithTimeUnit -> Adj<gram-ex="anum"> (Digit|Numr) Noun<kwtype="time_unit"> Digit? Noun<rx="год.*">?;
+// последний месяц
+// последняя неделя года
+PeriodDateWithTimeUnit -> Adj<kwtype="time_unit_type"> Noun<kwtype="time_unit"> Digit? Noun<rx="год.*">? ;
+// годом ранее
+PeriodDateWithTimeUnit -> Noun<kwtype="time_unit"> 'ранее';
+// протяжении двух лет
+// этой неделе
+PeriodDateWithTimeUnit ->  ('протяжение'|'этот') (Digit|Numr)? Noun<kwtype="time_unit">;
+// от шести до девяти месяцев
+PeriodDateWithTimeUnit -> 'от' Digit 'до' Digit Noun<kwtype="time_unit">;
+PeriodDateWithTimeUnit -> 'от' Numr 'до' Numr Noun<kwtype="time_unit">;
+
+// 2015 году
+// 2009-2011 годы
+// текущем году
+PeriodDateWithYear ->Adj<kwtype="time_unit_type">? Digit? Hyphen? Digit? Noun<rx="год.*">;
+// конца года
+// начала года
+PeriodDateWithYear -> Noun<kwtype="time_unit_duration_pos">? Digit? Noun<rx="год.*">;
+
+
+
+// с 1998 по 2005 год
+IntervalDate -> 'с' Digit 'по'  Digit  Noun<rx="год.*">?;
+// с 1 по 8 июля
+IntervalDate -> 'с' Digit 'по'  Digit Noun<kwtype="month"> ;
+IntervalDate -> 'с'  Numr 'по'  Numr Noun<kwtype="month"> 	;
+// с сентября 2008 года по январь 2009-го
+IntervalDate -> 'с' Noun<kwtype="month"> Digit 'по' Noun<kwtype="month"> Digit Adj<kwtype="time_unit_type">? Noun<rx="год.*">?;
+// конце июня - начале июля
+IntervalDate -> Noun<kwtype="time_unit_duration_pos"> Noun<kwtype="month"> Hyphen Noun<kwtype="time_unit_duration_pos"> Noun<kwtype="month">;
+// 17-20 месяцев
+// 2-3 месяцев
+// два-три месяцев
+IntervalDate -> Digit Hyphen Digit Noun<kwtype="time_unit">;
+IntervalDate -> Numr Hyphen Numr Noun<kwtype="time_unit">;
+

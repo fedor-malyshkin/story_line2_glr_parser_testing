@@ -1,0 +1,11 @@
+*.*~
+/.gradle
+*.log
+.emacs.desktop
+.emacs.desktop.lock
+.project
+.classpath
+.settings
+target
+bin
+build
