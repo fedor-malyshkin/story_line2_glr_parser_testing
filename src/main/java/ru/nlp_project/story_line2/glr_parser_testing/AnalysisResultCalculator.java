@@ -74,7 +74,7 @@ public class AnalysisResultCalculator {
     // . может вызываться из разных потоков аналлизатора
     @Override
     public void factExtracted(SentenceProcessingContext context,
-        ru.nlp_project.story_line2.glr_parser.Interpreter.Fact fact) {
+        ru.nlp_project.story_line2.glr_parser.InterpreterImpl.Fact fact) {
       fact.getFieldsMap().entrySet().stream().forEach(e -> {
         if (e.getValue().getValue() != null
             && !e.getValue().getValue().isEmpty())
