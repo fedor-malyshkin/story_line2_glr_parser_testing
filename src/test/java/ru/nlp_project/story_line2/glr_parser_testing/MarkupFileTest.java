@@ -3,6 +3,7 @@ package ru.nlp_project.story_line2.glr_parser_testing;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MarkupFileTest {
@@ -13,6 +14,7 @@ public class MarkupFileTest {
   public void setUp() throws Exception {
   }
 
+  @Ignore
   @Test
   public void testExtractFactsFromMarkup() {
     testable = new MarkupFile(null);
